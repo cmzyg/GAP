@@ -1,0 +1,6 @@
+#
+# Special methods for licensees
+#
+specials:
+    65: getCurrencyByUserIdFromRequest
+    88: getCurrencyByUserIdFromDatabase

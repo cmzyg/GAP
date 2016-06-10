@@ -1,0 +1,66 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 23/09/14
+ * Time: 13:07
+ */
+
+namespace controller;
+
+
+use application\BaseComponent;
+use application\BaseController;
+use component\communication\Communication;
+use component\configurationmanager\ConfigurationManager;
+use component\configurationmanager\Licensee;
+use component\validation\Validation;
+use component\request\Request;
+
+class clientController extends BaseController{
+
+    public function index()
+    {
+    	/*$request = new Request();
+    	$request = $request->loadComponent();
+    	
+    	$validation = new Validation();
+    	$validation = $validation->loadComponent();
+    	$validation->validateRequest($request);*/
+
+      /*  $conf = new ConfigurationManager();
+        $mng = $conf->loadComponent();
+
+
+        $l = new Licensee();
+        //$l->setOperatorName("LeoVegas");
+        $l->setOperatorId(51);
+        //$l->setSpecialFlag(true);
+
+        var_dump($mng->loadConfiguration($l));
+
+        echo $mng->getLoadConfigErrorMessage();*/
+
+        /**
+        $conf = new ConfigurationManager();
+        $configMng = $conf->loadComponent();
+        $configMng->reloadServerConfiguration();
+        var_dump($configMng->getServerConfiguration());
+
+        echo "I am client";
+        */
+
+        $com = new Communication();
+        $com = $com->loadComponent();
+
+        // $com->recognizeProvider();
+        
+        $com->receiveGetRequest();
+        if($_SERVER['REMOTE_ADDR']='::1'){
+            print json_encode($com->getIncomingRequestResponse());
+            exit;
+        }
+        echo $com->replyResponse();
+
+    }
+} 

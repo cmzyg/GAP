@@ -1,0 +1,27 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 24/09/14
+ * Time: 17:09
+ */
+
+namespace component\request;
+
+/**
+ * Class WalletRequest
+ * @package component\request\v1
+ * @author Samuel .I.Amaziro
+ */
+class WalletRequest extends Request{
+
+    protected $sessionId;
+    protected $transactionId;
+    protected $roundId;
+    protected $coinValue;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+} 

@@ -1,0 +1,257 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 29/09/14
+ * Time: 09:27
+ */
+
+namespace component\communication;
+
+/**
+ * Class CurlWrapper
+ * @package component\communication\v1
+ * @author Samuel .I.Amaziro
+ */
+Class CurlWrapper {
+    /**
+     * @var null|string
+     */
+    private $requestType;
+    /**
+     * @var null|int
+     */
+    private $statusCode;
+    /**
+     * @var null|string
+     */
+    private $errorMessage;
+    /**
+     * @var int
+     */
+    private $executionTimeOut = 10;
+    /**
+     * @var int
+     */
+    private $connectionTimeOut = 30;
+    /**
+     * @var null|array
+     */
+    private $headerInfo;
+    /**
+     * @var int
+     */
+    private $httpCode = 0;
+    /**
+     * @var null|resource
+     */
+    private $curlHandle = null;
+    /**
+     * @var null|RequestResponse
+     */
+    private $requestResponse;
+
+    public function __construct()
+    {
+        $this->initializeCurl();
+    }
+
+    /**
+     * Initializes the curl handle
+     */
+    protected function initializeCurl()
+    {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $this->curlHandle = $ch;
+    }
+
+    /**
+     * Executes a given request
+     * @param $url
+     */
+    public function executeRequest($url)
+    {
+        try {
+            if (is_null($this->curlHandle)) {
+                $this->initializeCurl();
+            }
+            curl_setopt($this->curlHandle, CURLOPT_URL, $url);
+            $this->setDefaultOptions();
+            $this->requestResponse = curl_exec($this->curlHandle);
+            $this->headerInfo = curl_getinfo($this->curlHandle);
+            $this->httpCode = curl_getinfo($this->curlHandle, CURLINFO_HTTP_CODE);
+            $this->statusCode = curl_errno($this->curlHandle);
+            $this->parseResponse();
+            $this->requestResponse->setUrl($url);
+            if ($this->statusCode) {
+                $this->errorMessage = curl_error($this->curlHandle);
+                throw new \Exception($this->errorMessage);
+            }
+            curl_close($this->curlHandle);
+        }catch (\Exception $ex)
+        {
+            curl_close($this->curlHandle);
+            $this->errorMessage = $ex->getMessage();
+            $this->requestResponse->setError(true);
+            $this->requestResponse->setErrorMessage($this->errorMessage);
+        }
+
+    }
+
+    /**
+     * Parses the response returned from the host
+     */
+    protected function parseResponse()
+    {
+        $parser = function ($type, $response)
+        {
+            $output = null;
+            switch($type)
+            {
+                case "XML2ARRAY":
+                    $xml = simplexml_load_string($response);
+                    $output = json_encode($xml);
+                    $output = str_replace('@attributes', 'attributes', $output);
+                    $output = json_decode($output, true);
+
+                    break;
+                case "XML2JSON":
+                    $xml = simplexml_load_string($response);
+                    $output = json_encode($xml);
+                    $output = str_replace('@attributes', 'attributes', $output);
+                    break;
+                case "XML2OBJECT":
+                    $output = simplexml_load_string($response);
+                    break;
+                case "JSON2ARRAY":
+                    $output = json_decode($response, true);
+                    break;
+                case "JSON2OBJECT":
+                    $output = json_decode($response, false);
+                    break;
+                default:
+                    $output = $response;
+            }
+
+            return $output;
+        };
+
+        $headerParser = function($headerInfo, $response)
+        {
+            $curlHeaderSize=$headerInfo['header_size'];
+
+            $sBody = trim(mb_substr($response, $curlHeaderSize));
+            $ResponseHeader = explode("\n",trim(mb_substr($response, 0, $curlHeaderSize)));
+            unset($ResponseHeader[0]);
+            $aHeaders = array();
+            foreach($ResponseHeader as $line){
+                list($key,$val) = explode(':',$line,2);
+                $aHeaders[strtolower($key)] = trim($val);
+            }
+
+            return $aHeaders;
+        };
+
+        $resObj = new RequestResponse();
+
+        $resObj->setRequestHeader($headerParser($this->headerInfo, $this->requestResponse));
+        $headerSize = curl_getinfo($this->curlHandle, CURLINFO_HEADER_SIZE);
+        $this->requestResponse = substr($this->requestResponse, $headerSize);
+        $resObj->setNonParsedResponse($this->requestResponse);
+        $resObj->setRequestResponse($parser($this->requestType, $this->requestResponse));
+        $resObj->setHttpCode($this->httpCode);
+        $resObj->setStatusCode($this->statusCode);
+        $this->requestResponse = $resObj;
+
+    }
+
+    /**
+     * Set default options for CURL
+     */
+    protected function setDefaultOptions()
+    {
+        $this->setOption(CURLOPT_VERBOSE, true);
+        $this->setOption(CURLOPT_HEADER, true);
+        $this->setOption(CURLOPT_SSL_VERIFYPEER, false);
+        $this->setOption(CURLOPT_SSL_VERIFYHOST, false);
+        $this->setOption(CURLOPT_RETURNTRANSFER, true);
+        $this->setOption(CURLOPT_FAILONERROR, true);
+        $this->setOption(CURLOPT_NOSIGNAL, true);
+        $this->setOption(CURLOPT_TIMEOUT, $this->executionTimeOut);
+        $this->setOption(CURLOPT_CONNECTTIMEOUT, $this->connectionTimeOut);
+
+    }
+
+    /**
+     * Sets the CURL request type as GET
+     */
+    public function useGet()
+    {
+        $this->setOption(CURLOPT_POST, false);
+    }
+
+    /**
+     * Sets the CURL request type as POST
+     * @param $data
+     */
+    public function usePost($data)
+    {
+        $this->setOption(CURLOPT_POST, true);
+        $this->setOption(CURLOPT_POSTFIELDS, $data);
+    }
+
+    /**
+     * Sets a CURL option
+     * @param $option
+     * @param $value
+     */
+    public function setOption($option, $value)
+    {
+        curl_setopt($this->curlHandle, $option, $value);
+    }
+
+    /**
+     * @param mixed $requestType
+     */
+    public function setRequestType($requestType)
+    {
+        $this->requestType = $requestType;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRequestType()
+    {
+        return $this->requestType;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getErrorMessage()
+    {
+        return $this->errorMessage;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRequestResponse()
+    {
+        return $this->requestResponse;
+    }
+
+
+
+
+} 

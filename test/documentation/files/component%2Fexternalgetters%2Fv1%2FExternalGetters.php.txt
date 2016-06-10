@@ -1,0 +1,56 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: entymon
+ * Date: 30/10/14
+ * Time: 16:55
+ */
+
+namespace component\externalgetters\v1;
+
+
+use component\externalgetters\ExternalGettersInterface;
+use component\request\Request;
+use model\GMAPIDataRepository;
+
+class ExternalGetters extends \component\externalgetters\ExternalGetters implements ExternalGettersInterface {
+
+    public function getMethodList()
+    {
+        //$data = new GMAPIDataRepository('backoffice_licensees');
+        $this->processResponse = array(0=>"&lt;server config='alogin,alogout,betwin,blogin,end,pbet,,progwincurr,sbet'/&gt;");
+    }
+
+    public function getLicenseeDetails()
+    {
+
+    }
+
+    public function progressiveWinByCurrency()
+    {
+
+    }
+
+    public function execute(Request $request)
+    {
+        $this->request = $request;
+
+        if($request instanceof GetMethodsListRequest)
+        {
+            $this->getMethodsList();
+        }
+        elseif($request instanceof GetLicenseeDetailsRequest)
+        {
+            $this->getLicenseeDetails();
+        }
+        elseif($request instanceof ProgressiveWinByCurrencyRequest)
+        {
+            $this->progressiveWinByCurrency();
+        }
+        else
+        {
+            $this->processResponse = array("error" => $this->NotSupported());
+        }
+    }
+
+} 

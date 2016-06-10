@@ -1,0 +1,42 @@
+<?php
+/**
+ *
+ * Simple MVC Framework aka Baseframework
+ * @version 2.0
+ *
+ * Created By Zygimantas Simkus
+ * Copyright 2014 Plati Tech Limited, All Rights Reserved
+ */
+
+namespace autoloader;
+
+/**
+ * Class Autoloader
+ * @package autoloader
+ */
+class Autoloader
+{
+
+    /**
+     * Loads a given class
+     * @param $className
+     */
+    public static function load($className)
+    {
+            $path = _SITE_PATH. str_replace("\\", DIRECTORY_SEPARATOR, $className) . '.php';
+            if(file_exists($path))
+            {
+                require_once $path;
+            }
+            else
+            {
+                @$list = explode("\\", $className);
+                @$path = _SITE_PATH.$list[4].DIRECTORY_SEPARATOR.$list[5].DIRECTORY_SEPARATOR.$list[2].DIRECTORY_SEPARATOR.$list[3].$list[4].$list[5].$list[6].".php";
+                if(file_exists($path))
+                {
+                    require_once $path;
+                }
+            }
+
+    }
+}

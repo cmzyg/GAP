@@ -1,0 +1,18 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 03/10/14
+ * Time: 10:22
+ */
+
+namespace component\configurationmanager;
+
+
+interface ConfigurationManagerInterface{
+
+    public function reloadConfiguration($licenseeId);
+
+    public function getConfiguration($licenseeId, $operatorName = null, $licenseeName = null);
+
+} 

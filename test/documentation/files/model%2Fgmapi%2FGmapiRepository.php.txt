@@ -1,0 +1,168 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 03/10/14
+ * Time: 10:25
+ */
+
+namespace model\gmapi;
+
+
+use application\BaseComponent;
+use component\configurationmanager\Licensee;
+
+class GmapiRepository extends \Doctrine\ORM\EntityRepository{
+
+    public function fetchLicenseeByOperatorId($operatorId)
+    {
+        try
+        {
+            $query = $this->_em->createQuery("SELECT l  FROM model\gmapi\GmapiLicensee l WHERE l.idLicensee = :oId")->setParameter("oId", $operatorId);
+            return $query->getResult();
+        }
+        catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+
+    public function fetchLicenseeByOperatorName($operatorName)
+    {
+        try {
+            $query = $this->_em->createQuery("SELECT l  FROM model\gmapi\GmapiLicensee l WHERE l.licenseeName = :oName")->setParameter("oName", $operatorName);
+            return $query->getResult();
+        }catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+
+    public function fetchLicenseeExtraConfiguration(Licensee $licensee)
+    {
+        try {
+            $query = $this->_em->createQuery("SELECT c  FROM model\gmapi\GmapiExtraConfiguration c WHERE c.license = :cLicensee")
+                ->setParameter("cLicensee", $licensee);
+            return $query->getResult();
+        }catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+
+
+    public function fetchLicenseeTestGames(Licensee $licensee)
+    {
+        try {
+            $query = $this->_em->createQuery("SELECT g  FROM model\gmapi\GmapiTestGames g WHERE g.license = :gLicensee")
+                ->setParameter("gLicensee", $licensee);
+            return $query->getResult();
+        }catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+
+    public function fetchServer($serverName)
+    {
+        try {
+            $query = $this->_em->createQuery("SELECT s FROM model\gmapi\GmapiServers s WHERE s.serverName = :sName")
+                ->setParameter("sName", $serverName);
+            return $query->getResult();
+        }catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+
+    public function fetchAllServerConfig()
+    {
+        try {
+            $query = $this->_em->createQuery("SELECT s FROM model\gmapi\GmapiServerConfiguration s ");
+            return $query->getResult();
+        }catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+
+    public function fetchServerConfig(GmapiServers $gmapiServers)
+    {
+        try {
+            $query = $this->_em->createQuery("SELECT s FROM model\gmapi\GmapiServerConfiguration s WHERE s.server = :cServer")
+                ->setParameter("cServer", $gmapiServers);
+            return $query->getResult();
+        }catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+
+    public function fetchLicenseeTestGamesBySkinId(GmapiGames $games)
+    {
+        try {
+            $query = $this->_em->createQuery("SELECT g  FROM model\gmapi\GmapiTestGames g WHERE g.skin = :gSkin")
+                ->setParameter("gSkin", $games);
+            return $query->getResult();
+        }catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+
+    public function fetchLicenseeValidation(GmapiLicensee $licensee, $lid)
+    {
+        try {
+            $query = $this->_em->createQuery("SELECT l  FROM model\gmapi\GmapiLicensee l
+            WHERE l.configurationId = :lCid
+            AND l.regulationNumber = :lRid
+            AND l.idLicensee = :lLid
+        ")
+                ->setParameter("lCid", $licensee->getConfigurationId())
+                ->setParameter("lRid", $licensee->getRegulationNumber())
+                ->setParameter("lLid", $lid);
+            return $query->getResult();
+        }catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+
+    public function fetchGameBySkinId($skinId)
+    {
+
+    }
+
+    public function fetchGameByGameId($gameId)
+    {
+
+    }
+
+    public function fetchGameBySkinIdAndGameId($skinId, $gameId)
+    {
+        try
+        {
+        $query = $this->_em->createQuery("SELECT g FROM model\gmapi\GmapiGames g
+            WHERE g.gameId = :gGameId
+            AND g.skinId= :gSkinId
+        ")
+            ->setParameter("gGameId", $gameId)
+            ->setParameter("gSkinId", $skinId);
+        return $query->getResult();
+        }catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $query);
+            return false;
+        }
+    }
+}
+

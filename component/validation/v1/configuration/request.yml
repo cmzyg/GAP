@@ -1,0 +1,25 @@
+
+# Validation configuration file
+
+# Localization of Request Classes
+basic_configuration:
+    namespace: \component\request\
+
+# Call methods
+#
+# Configuration provides list of allowed method and class as relationship
+call_methods:
+    get_licensee_details: GetLicenseeDetailsRequest
+    get_methods_list: GetMethodsListRequest
+    progreadcurr: ProgressiveServerReadByCurrencyRequest
+    blogin: BeforeLoginRequest
+    balance: BalanceRequest
+    pbet: PlaceBetRequest
+    pbetfg: PlaceBetRequest
+    sbet: SettleBetRequest
+    betwin: PlaceAndSettleBetRequest
+    cancel: CancelRoundRequest
+    end: EndRequest
+    alogin: LoadScreenRequest
+    alogout: SaveScreenRequest
+    progwincurr: ProgressiveWinByCurrencyRequest

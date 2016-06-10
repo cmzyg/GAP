@@ -1,0 +1,301 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 17/10/14
+ * Time: 14:26
+ */
+
+namespace model;
+
+
+
+use application\BaseComponent;
+use exceptions\DatabaseException;
+
+class GMAPIDataRepository {
+
+    /**
+     * @var \mysqli|null|\PDO
+     */
+    protected $conn;
+
+    public function __construct($databaseName)
+    {
+            $config = new DatabaseConfiguration();
+            $db = new Database("PDO", $databaseName, $config->getDbPassword(),$config->getDbUsername(),$config->getHost(), $config->getPort());
+            $this->conn = DatabaseFactory::createDatabase($db, true);
+    }
+
+    public function fetchOperatorCoinValue($operatorId)
+    {
+        $sql = "SELECT * FROM game_coin_values WHERE operator_id = ?";
+        try
+        {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(1, $operatorId);
+            $stmt->execute();
+            return $stmt->fetchAll();
+
+        } catch (\Exception $ex)
+        {
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $sql);
+            return false;
+        }
+    }
+
+    /**
+     * Call to irsbo.B2B_games table to fetch gameID and skinID
+     * @param $gameId
+     * @param $skinId
+     * @return array|bool
+     */
+    public function fetchGameAndSkinId($gameId,$skinId)
+    {
+        $sql = "SELECT * FROM b2b_games WHERE id = :skinId AND mid = :gameId";
+        $params = array(
+            ':skinId' => $skinId,
+            ':gameId' => $gameId,
+        );
+
+        return $this->fetchExecute($sql,$params);
+    }
+
+    public function fetchOperatorIdByLicenseeAndOperatorName($licenseeId,$operatorName)
+    {
+        $sql = "SELECT operator_id FROM bo_operators_per_licensee WHERE licensee_id = :licenseeId AND operator = :operatorName LIMIT 1";
+        $params = array(
+            ':licenseeId'   => $licenseeId,
+            ':operatorName' => $operatorName,
+        );
+
+        return $this->fetchExecute($sql,$params);
+    }
+
+    public function fetchCurrencyPerCoinValue($skinId,$operatorId,$currency)
+    {
+        $sql = "SELECT operator_id , currency, flag FROM game_coin_values WHERE operator_id = :opid AND skin_id = :skinid AND currency = :curr LIMIT 1";
+        $params = array(
+            ':skinid' => $skinId,
+            ':opid'    => $operatorId,
+            ':curr'   => $currency,
+        );
+
+        return $this->fetchExecute($sql,$params);
+    }
+
+    public function fetchCurrencyPerOperatorId($licenseeId,$operatorId,$currency)
+    {
+        $sql = "SELECT operator_id , currency, status FROM bo_currency_per_operator WHERE licensee_id = :lid AND operator_id = :opid AND currency = :curr LIMIT 1";
+        $params = array(
+            ':lid'    => $licenseeId,
+            ':opid'   => $operatorId,
+            ':curr'   => $currency,
+        );
+
+        return $this->fetchExecute($sql,$params);
+    }
+
+    public function fetchCurrencyPerPlayerCheckPlayer($playerId)
+    {
+        $sql = "SELECT customer_id FROM currencies_per_players WHERE customer_id = :customer_id LIMIT 1";
+        $params = array(
+            ':customer_id'    => $playerId,
+        );
+
+        return $this->fetchExecute($sql,$params);
+    }
+
+    public function fetchSaveScreenData($userId, $skinId)
+    {
+        $sql = "SELECT * FROM backoffice_savescreen_data WHERE uid = :uid AND skinid = :skinid LIMIT 1 ";
+        $params = array(
+            ':skinid'      => $skinId,
+            ':uid'         => $userId,
+        );
+
+        return $this->fetchExecute($sql,$params);
+    }
+
+    public function fetchRows()
+    {
+        $sql = "SELECT ROW_COUNT()";
+
+        return $this->fetchExecute($sql);
+    }
+
+    public function fetchBackofficeLicenseesToGetMethods($licenseeId, $configurationId)
+    {
+        $sql = "SELECT * FROM backoffice_licensees AS bl LEFT JOIN backoffice_configurations AS bc
+						ON bl.id_licensee = bc.id_licensee WHERE bl.id_licensee = :lid AND bc.configuration_id = :cid";
+        $params = array(
+            ':cid'      => $configurationId,
+            ':lid'      => $licenseeId,
+        );
+
+        return $this->fetchExecute($sql,$params);
+    }
+
+    public function fetchCurrencyPerPlayerCheckCurrency($payerId, $currency)
+    {
+        $sql = "SELECT customer_id , currency FROM currencies_per_players WHERE customer_id = :customer_id AND currency = :curr LIMIT 1";
+        $params = array(
+            ':customer_id'      => $payerId,
+            ':curr'             => $currency,
+        );
+
+        return $this->fetchExecute($sql,$params);
+    }
+
+    /**
+     * INSERTIONS
+     */
+
+    public function insertCurrencyPerPlayer($payerId, $operatorId, $currency, $userType = 'U')
+    {
+        $sql = "INSERT INTO currencies_per_players (id,user_type,operator_id,customer_id,currency) VALUES (null,:user_type,:operator_id,:customer_id,:curr)";
+        $params = array(
+            ':customer_id'      => $payerId,
+            ':operator_id'      => $operatorId,
+            ':curr'             => $currency,
+            ':user_type'        => $userType,
+        );
+
+        $this->actionExecute($sql,$params);
+    }
+
+    public function insertSaveScreenData($userId, $skinId)
+    {
+        $sql = "INSERT INTO backoffice_savescreen_data ( uid,  skinid, state, connected, ssstring, gmstring ) VALUES ( :uid, :skinid,0,1,'-','-')";
+        $params = array(
+            ':skinid'      => $skinId,
+            ':uid'         => $userId,
+        );
+
+        return $this->actionExecute($sql,$params);
+    }
+
+    /**
+     * UPDATES
+     */
+
+    public function updateSaveScreenData($userId, $skinId)
+    {
+        $sql = "UPDATE backoffice_savescreen_data SET connected = 1 WHERE uid = :uid AND skinid = :skinid";
+        $params = array(
+            ':skinid'      => $skinId,
+            ':uid'         => $userId,
+        );
+
+        return $this->actionExecute($sql,$params);
+    }
+
+    public function updateSaveScreenDataWithData($state, $connection, $ssstring, $gmai, $userId, $skinId)
+    {
+        $sql = "UPDATE backoffice_savescreen_data SET state = :state, connected = :connected, ssstring = :ssstring, gmstring = :gmstring WHERE uid = :uid AND skinid = :skinid";
+        $params = array(
+            ':skinid'      => $skinId,
+            ':uid'         => $userId,
+            ':state'       => $state,
+            ':connected'   => $connection,
+            ':ssstring'    => $ssstring,
+            ':gmstring'    => $gmai,
+        );
+
+        return $this->actionExecute($sql,$params);
+    }
+
+    protected function actionExecute($sql,$params = array())
+    {
+        try
+        {
+            $stmt = $this->conn->prepare($sql);
+            if(!empty($params))
+            {
+                $stmt->execute($params);
+            }
+            else
+            {
+                $stmt->execute();
+            }
+        }
+        catch (\Exception $ex)
+        {
+            $sql = $this->helperGetPreparedQuery($sql,$params);
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $sql);
+            return false;
+        }
+    }
+
+    protected function fetchExecute($sql,$params = array())
+    {
+        try
+        {
+            $stmt = $this->conn->prepare($sql);
+            if(!empty($params))
+            {
+                $stmt->execute($params);
+            }
+            else
+            {
+                $stmt->execute();
+            }
+            $res = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if($res === false)
+            {
+                $error = $stmt->errorInfo();
+                throw new DatabaseException($error[2]);
+            }
+
+            return $res;
+        }
+        catch (\Exception $ex)
+        {
+            $sql = $this->helperGetPreparedQuery($sql,$params);
+            BaseComponent::getLogger()->addMySQLError($ex->getMessage(), $sql);
+            return false;
+        }
+    }
+
+    /**
+     * Method to get prepared SQL 
+     * @param $query
+     * @param $params
+     * @return mixed
+     */
+    public function helperGetPreparedQuery($query,$params) {
+        
+        # build a regular expression for each parameter
+        foreach ($params as $key => $value) 
+        {
+            if (is_string($key)) 
+            {
+                if( strpos($key, ':') === false ) 
+                {
+                    $keys[] = '/:'.$key.'/';
+                } 
+                else 
+                {
+                    $keys[] = '/'.$key.'/';
+                }
+            } 
+            else
+            {
+                $keys[] = '/[?]/';
+            }
+            
+            if(is_numeric($value)) 
+            {
+                $values[] = $value;
+            }
+            else
+            {
+                $values[] = '"'.$value .'"';
+            }
+        }
+        
+        $query = preg_replace($keys, $values, $query, 1, $count);
+        return $query;
+    }
+} 

@@ -1,0 +1,513 @@
+<wsdl:definitions
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:wsp="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+        xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+        xmlns:tns="http://sportradar.ag.rgs/"
+        xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+        name="Service"
+        targetNamespace="http://sportradar.ag.rgs/">
+
+        <wsp:Policy wsu:Id="BasicHttpsBinding_IService_policy">
+            <wsp:ExactlyOne>
+                <wsp:All>
+                    <sp:TransportBinding xmlns:sp="http://schemas.xmlsoap.org/ws/2005/07/securitypolicy">
+                        <wsp:Policy>
+                            <sp:TransportToken>
+                                <wsp:Policy>
+                                    <sp:HttpsToken RequireClientCertificate="false"/>
+                                </wsp:Policy>
+                            </sp:TransportToken>
+                            <sp:AlgorithmSuite>
+                                <wsp:Policy>
+                                    <sp:Basic256/>
+                                </wsp:Policy>
+                            </sp:AlgorithmSuite>
+                            <sp:Layout>
+                                <wsp:Policy>
+                                    <sp:Strict/>
+                                </wsp:Policy>
+                            </sp:Layout>
+                        </wsp:Policy>
+                    </sp:TransportBinding>
+                </wsp:All>
+            </wsp:ExactlyOne>
+        </wsp:Policy>
+        <wsdl:types>
+
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://sportradar.ag.rgs/">
+            <xs:import namespace="http://schemas.datacontract.org/2004/07/"/>
+            <xs:element name="userInfo">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="secretKey" nillable="true" type="xs:string"/>
+                        <xs:element xmlns:q1="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="requests" nillable="true" type="q1:ArrayOfUserInfoRequest"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="userInfoResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element xmlns:q2="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="userInfoResult" nillable="true" type="q2:ArrayOfUserInfoResponse"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="queryBalance">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="secretKey" nillable="true" type="xs:string"/>
+                        <xs:element xmlns:q3="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="requests" nillable="true" type="q3:ArrayOfQueryBalanceRequest"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="queryBalanceResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="queryBalanceResult" nillable="true" type="q4:ArrayOfGenericResponse"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="reserveFunds">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="secretKey" nillable="true" type="xs:string"/>
+                        <xs:element xmlns:q5="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="requests" nillable="true" type="q5:ArrayOfReserveFundsRequest"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="reserveFundsResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element xmlns:q6="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="reserveFundsResult" nillable="true" type="q6:ArrayOfGenericResponse"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="payment">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="secretKey" nillable="true" type="xs:string"/>
+                        <xs:element xmlns:q7="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="requests" nillable="true" type="q7:ArrayOfPaymentRequest"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="paymentResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element xmlns:q8="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="paymentResult" nillable="true" type="q8:ArrayOfGenericResponse"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="approve">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="secretKey" nillable="true" type="xs:string"/>
+                        <xs:element xmlns:q9="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="requests" nillable="true" type="q9:ArrayOfApproveRequest"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="approveResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element xmlns:q10="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="approveResult" nillable="true" type="q10:ArrayOfGenericResponse"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="cancel">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="secretKey" nillable="true" type="xs:string"/>
+                        <xs:element xmlns:q11="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="requests" nillable="true" type="q11:ArrayOfCancelRequest"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="cancelResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element xmlns:q12="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="cancelResult" nillable="true" type="q12:ArrayOfGenericResponse"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="manualPayment">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="secretKey" nillable="true" type="xs:string"/>
+                        <xs:element xmlns:q13="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="requests" nillable="true" type="q13:ArrayOfManualPaymentRequest"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="manualPaymentResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element xmlns:q14="http://schemas.datacontract.org/2004/07/" minOccurs="0" name="manualPaymentResult" nillable="true" type="q14:ArrayOfGenericResponse"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:schema>
+
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.microsoft.com/2003/10/Serialization/" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://schemas.microsoft.com/2003/10/Serialization/">
+            <xs:element name="anyType" nillable="true" type="xs:anyType"/>
+            <xs:element name="anyURI" nillable="true" type="xs:anyURI"/>
+            <xs:element name="base64Binary" nillable="true" type="xs:base64Binary"/>
+            <xs:element name="boolean" nillable="true" type="xs:boolean"/>
+            <xs:element name="byte" nillable="true" type="xs:byte"/>
+            <xs:element name="dateTime" nillable="true" type="xs:dateTime"/>
+            <xs:element name="decimal" nillable="true" type="xs:decimal"/>
+            <xs:element name="double" nillable="true" type="xs:double"/>
+            <xs:element name="float" nillable="true" type="xs:float"/>
+            <xs:element name="int" nillable="true" type="xs:int"/>
+            <xs:element name="long" nillable="true" type="xs:long"/>
+            <xs:element name="QName" nillable="true" type="xs:QName"/>
+            <xs:element name="short" nillable="true" type="xs:short"/>
+            <xs:element name="string" nillable="true" type="xs:string"/>
+            <xs:element name="unsignedByte" nillable="true" type="xs:unsignedByte"/>
+            <xs:element name="unsignedInt" nillable="true" type="xs:unsignedInt"/>
+            <xs:element name="unsignedLong" nillable="true" type="xs:unsignedLong"/>
+            <xs:element name="unsignedShort" nillable="true" type="xs:unsignedShort"/>
+            <xs:element name="char" nillable="true" type="tns:char"/>
+            <xs:simpleType name="char">
+                <xs:restriction base="xs:int"/>
+            </xs:simpleType>
+            <xs:element name="duration" nillable="true" type="tns:duration"/>
+            <xs:simpleType name="duration">
+                <xs:restriction base="xs:duration">
+                    <xs:pattern value="\-?P(\d*D)?(T(\d*H)?(\d*M)?(\d*(\.\d*)?S)?)?"/>
+                    <xs:minInclusive value="-P10675199DT2H48M5.4775808S"/>
+                    <xs:maxInclusive value="P10675199DT2H48M5.4775807S"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:element name="guid" nillable="true" type="tns:guid"/>
+            <xs:simpleType name="guid">
+                <xs:restriction base="xs:string">
+                    <xs:pattern value="[\da-fA-F]{8}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{4}-[\da-fA-F]{12}"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:attribute name="FactoryType" type="xs:QName"/>
+            <xs:attribute name="Id" type="xs:ID"/>
+            <xs:attribute name="Ref" type="xs:IDREF"/>
+        </xs:schema>
+            <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://schemas.datacontract.org/2004/07/" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/">
+            <xs:complexType name="ArrayOfUserInfoRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="UserInfoRequest" nillable="true" type="tns:UserInfoRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfUserInfoRequest" nillable="true" type="tns:ArrayOfUserInfoRequest"/>
+            <xs:complexType name="UserInfoRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="CorrelationNumber" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Token" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GameCode" nillable="true" type="xs:string" />
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="UserInfoRequest" nillable="true" type="tns:UserInfoRequest"/>
+            <xs:complexType name="ArrayOfUserInfoResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="UserInfoResponse" nillable="true" type="tns:UserInfoResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfUserInfoResponse" nillable="true" type="tns:ArrayOfUserInfoResponse"/>
+            <xs:complexType name="UserInfoResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Balance" type="xs:decimal"/>
+                    <xs:element minOccurs="0" name="CorrelationNumber" type="xs:int"/>
+                    <xs:element minOccurs="0" name="CurrencyCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="LanguageCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Status" type="tns:ElementStatusCode"/>
+                    <xs:element minOccurs="0" name="TimeToLive" nillable="true" type="xs:long"/>
+                    <xs:element minOccurs="0" name="UserId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Username" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="VipLevel" nillable="true" type="xs:int"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="UserInfoResponse" nillable="true" type="tns:UserInfoResponse"/>
+            <xs:simpleType name="ElementStatusCode">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="OK"/>
+                    <xs:enumeration value="REQUEST_FORMAT"/>
+                    <xs:enumeration value="INVALID_TOKEN"/>
+                    <xs:enumeration value="INSUFFICIENT_FUNDS"/>
+                    <xs:enumeration value="USER_NOT_FOUND"/>
+                    <xs:enumeration value="INVALID_CREDENTIALS"/>
+                    <xs:enumeration value="USER_FROZEN"/>
+                    <xs:enumeration value="DUPLICATE_PAYMENT_ID"/>
+                    <xs:enumeration value="PAYMENT_ID_NOT_FOUND"/>
+                    <xs:enumeration value="RISK_VALIDATION"/>
+                    <xs:enumeration value="CANCEL_NOT_POSSIBLE"/>
+                    <xs:enumeration value="USER_EXISTS"/>
+                    <xs:enumeration value="ERROR"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:element name="ElementStatusCode" nillable="true" type="tns:ElementStatusCode"/>
+            <xs:complexType name="ArrayOfQueryBalanceRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="QueryBalanceRequest" nillable="true" type="tns:QueryBalanceRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfQueryBalanceRequest" nillable="true" type="tns:ArrayOfQueryBalanceRequest"/>
+            <xs:complexType name="QueryBalanceRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="CorrelationNumber" type="xs:int"/>
+                    <xs:element minOccurs="0" name="Token" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="UserId" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="QueryBalanceRequest" nillable="true" type="tns:QueryBalanceRequest"/>
+            <xs:complexType name="ArrayOfGenericResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="GenericResponse" nillable="true" type="tns:GenericResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfGenericResponse" nillable="true" type="tns:ArrayOfGenericResponse"/>
+            <xs:complexType name="GenericResponse">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Balance" type="xs:decimal"/>
+                    <xs:element minOccurs="0" name="CorrelationNumber" type="xs:int"/>
+                    <xs:element minOccurs="0" name="CurrencyCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Status" type="tns:ElementStatusCode"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="GenericResponse" nillable="true" type="tns:GenericResponse"/>
+            <xs:complexType name="ArrayOfReserveFundsRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="ReserveFundsRequest" nillable="true" type="tns:ReserveFundsRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfReserveFundsRequest" nillable="true" type="tns:ArrayOfReserveFundsRequest"/>
+            <xs:complexType name="ReserveFundsRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="CorrelationNumber" type="xs:int"/>
+                    <xs:element minOccurs="0" name="CurrencyCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="CustomValues" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GameCategoryCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GameCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="GameFormatCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="MaxPayout" type="xs:decimal"/>
+                    <xs:element minOccurs="0" name="PaymentId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Stake" nillable="true" type="tns:PaymentElement"/>
+                    <xs:element minOccurs="0" name="TicketInfo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Token" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="UserId" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ReserveFundsRequest" nillable="true" type="tns:ReserveFundsRequest"/>
+            <xs:complexType name="PaymentElement">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Amount" type="xs:decimal"/>
+                    <xs:element minOccurs="0" name="Timestamp" type="xs:long"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="PaymentElement" nillable="true" type="tns:PaymentElement"/>
+            <xs:complexType name="ArrayOfPaymentRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="PaymentRequest" nillable="true" type="tns:PaymentRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfPaymentRequest" nillable="true" type="tns:ArrayOfPaymentRequest"/>
+            <xs:complexType name="PaymentRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="ApprovePayment" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="CorrelationNumber" type="xs:int"/>
+                    <xs:element minOccurs="0" name="CurrencyCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="CustomValues" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Payment" nillable="true" type="tns:PaymentElement"/>
+                    <xs:element minOccurs="0" name="PaymentId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="TicketInfo" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="UserId" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="PaymentRequest" nillable="true" type="tns:PaymentRequest"/>
+            <xs:complexType name="ArrayOfApproveRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="ApproveRequest" nillable="true" type="tns:ApproveRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfApproveRequest" nillable="true" type="tns:ArrayOfApproveRequest"/>
+            <xs:complexType name="ApproveRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="CorrelationNumber" type="xs:int"/>
+                    <xs:element minOccurs="0" name="CustomValues" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="PaymentId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="TicketInfo" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ApproveRequest" nillable="true" type="tns:ApproveRequest"/>
+            <xs:complexType name="ArrayOfCancelRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="CancelRequest" nillable="true" type="tns:CancelRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfCancelRequest" nillable="true" type="tns:ArrayOfCancelRequest"/>
+            <xs:complexType name="CancelRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="CorrelationNumber" type="xs:int"/>
+                    <xs:element minOccurs="0" name="CustomValues" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Force" nillable="true" type="xs:boolean"/>
+                    <xs:element minOccurs="0" name="PaymentId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="TicketInfo" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="CancelRequest" nillable="true" type="tns:CancelRequest"/>
+            <xs:complexType name="ArrayOfManualPaymentRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" maxOccurs="unbounded" name="ManualPaymentRequest" nillable="true" type="tns:ManualPaymentRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ArrayOfManualPaymentRequest" nillable="true" type="tns:ArrayOfManualPaymentRequest"/>
+            <xs:complexType name="ManualPaymentRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="Comment" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="CorrelationNumber" type="xs:int"/>
+                    <xs:element minOccurs="0" name="CurrencyCode" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="Payment" nillable="true" type="tns:PaymentElement"/>
+                    <xs:element minOccurs="0" name="PaymentId" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="UserId" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="ManualPaymentRequest" nillable="true" type="tns:ManualPaymentRequest"/>
+        </xs:schema>
+    </wsdl:types>
+    <wsdl:message name="IService_userInfo_InputMessage">
+        <wsdl:part name="parameters" element="tns:userInfo"/>
+    </wsdl:message>
+    <wsdl:message name="IService_userInfo_OutputMessage">
+        <wsdl:part name="parameters" element="tns:userInfoResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IService_queryBalance_InputMessage">
+        <wsdl:part name="parameters" element="tns:queryBalance"/>
+    </wsdl:message>
+    <wsdl:message name="IService_queryBalance_OutputMessage">
+        <wsdl:part name="parameters" element="tns:queryBalanceResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IService_reserveFunds_InputMessage">
+        <wsdl:part name="parameters" element="tns:reserveFunds"/>
+    </wsdl:message>
+    <wsdl:message name="IService_reserveFunds_OutputMessage">
+        <wsdl:part name="parameters" element="tns:reserveFundsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IService_payment_InputMessage">
+        <wsdl:part name="parameters" element="tns:payment"/>
+    </wsdl:message>
+    <wsdl:message name="IService_payment_OutputMessage">
+        <wsdl:part name="parameters" element="tns:paymentResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IService_approve_InputMessage">
+        <wsdl:part name="parameters" element="tns:approve"/>
+    </wsdl:message>
+    <wsdl:message name="IService_approve_OutputMessage">
+        <wsdl:part name="parameters" element="tns:approveResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IService_cancel_InputMessage">
+        <wsdl:part name="parameters" element="tns:cancel"/>
+    </wsdl:message>
+    <wsdl:message name="IService_cancel_OutputMessage">
+        <wsdl:part name="parameters" element="tns:cancelResponse"/>
+    </wsdl:message>
+    <wsdl:message name="IService_manualPayment_InputMessage">
+        <wsdl:part name="parameters" element="tns:manualPayment"/>
+    </wsdl:message>
+    <wsdl:message name="IService_manualPayment_OutputMessage">
+        <wsdl:part name="parameters" element="tns:manualPaymentResponse"/>
+    </wsdl:message>
+    <wsdl:portType name="IService">
+        <wsdl:operation name="userInfo">
+            <wsdl:input wsaw:Action="http://sportradar.ag.rgs/IService/userInfo" message="tns:IService_userInfo_InputMessage"/>
+            <wsdl:output wsaw:Action="http://sportradar.ag.rgs/IService/userInfoResponse" message="tns:IService_userInfo_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="queryBalance">
+            <wsdl:input wsaw:Action="http://sportradar.ag.rgs/IService/queryBalance" message="tns:IService_queryBalance_InputMessage"/>
+            <wsdl:output wsaw:Action="http://sportradar.ag.rgs/IService/queryBalanceResponse" message="tns:IService_queryBalance_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="reserveFunds">
+            <wsdl:input wsaw:Action="http://sportradar.ag.rgs/IService/reserveFunds" message="tns:IService_reserveFunds_InputMessage"/>
+            <wsdl:output wsaw:Action="http://sportradar.ag.rgs/IService/reserveFundsResponse" message="tns:IService_reserveFunds_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="payment">
+            <wsdl:input wsaw:Action="http://sportradar.ag.rgs/IService/payment" message="tns:IService_payment_InputMessage"/>
+            <wsdl:output wsaw:Action="http://sportradar.ag.rgs/IService/paymentResponse" message="tns:IService_payment_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="approve">
+            <wsdl:input wsaw:Action="http://sportradar.ag.rgs/IService/approve" message="tns:IService_approve_InputMessage"/>
+            <wsdl:output wsaw:Action="http://sportradar.ag.rgs/IService/approveResponse" message="tns:IService_approve_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="cancel">
+            <wsdl:input wsaw:Action="http://sportradar.ag.rgs/IService/cancel" message="tns:IService_cancel_InputMessage"/>
+            <wsdl:output wsaw:Action="http://sportradar.ag.rgs/IService/cancelResponse" message="tns:IService_cancel_OutputMessage"/>
+        </wsdl:operation>
+        <wsdl:operation name="manualPayment">
+            <wsdl:input wsaw:Action="http://sportradar.ag.rgs/IService/manualPayment" message="tns:IService_manualPayment_InputMessage"/>
+            <wsdl:output wsaw:Action="http://sportradar.ag.rgs/IService/manualPaymentResponse" message="tns:IService_manualPayment_OutputMessage"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="BasicHttpsBinding_IService" type="tns:IService">
+        <wsp:PolicyReference URI="#BasicHttpsBinding_IService_policy"/>
+        <soap:binding transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="userInfo">
+            <soap:operation soapAction="http://sportradar.ag.rgs/IService/userInfo" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="queryBalance">
+            <soap:operation soapAction="http://sportradar.ag.rgs/IService/queryBalance" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="reserveFunds">
+            <soap:operation soapAction="http://sportradar.ag.rgs/IService/reserveFunds" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="payment">
+            <soap:operation soapAction="http://sportradar.ag.rgs/IService/payment" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="approve">
+            <soap:operation soapAction="http://sportradar.ag.rgs/IService/approve" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="cancel">
+            <soap:operation soapAction="http://sportradar.ag.rgs/IService/cancel" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="manualPayment">
+            <soap:operation soapAction="http://sportradar.ag.rgs/IService/manualPayment" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="Service">
+        <wsdl:port name="BasicHttpsBinding_IService" binding="tns:BasicHttpsBinding_IService">
+            <soap:address location="https://crystalbet.com:9443/Service.svc"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

@@ -1,0 +1,70 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: entymon
+ * Date: 20/10/14
+ * Time: 12:50
+ */
+
+namespace component\request;
+
+
+class ProgressiveServerReadByCurrencyRequest extends ProgressiveRequest {
+
+    protected $internalProgressiveId;
+
+    protected $coinValue;
+
+    protected $callGame = false;
+
+    protected $required = array(
+        'lid' => 'licenseeId',
+        'cid' => 'configurationId',
+        'rid' => 'regulationId',
+        'operator' => 'operatorName',
+        'pp' => 'pp',
+        'progid' => 'internalProgressiveId',
+        'cv' => 'coinValue',
+    );
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->internalProgressiveId = ((isset($this->allRequest['progid'])) ? $this->allRequest['progid'] : null);
+        $this->coinValue = ((isset($this->allRequest['cv'])) ? $this->allRequest['cv'] : null);
+    }
+
+    /**
+     * @return null
+     */
+    public function getCoinValue()
+    {
+        return $this->coinValue;
+    }
+
+    /**
+     * @param null $coinValue
+     */
+    public function setCoinValue($coinValue)
+    {
+        $this->coinValue = $coinValue;
+    }
+
+    /**
+     * @return null
+     */
+    public function getInternalProgressiveId()
+    {
+        return $this->internalProgressiveId;
+    }
+
+    /**
+     * @param null $internalProgressiveId
+     */
+    public function setInternalProgressiveId($internalProgressiveId)
+    {
+        $this->internalProgressiveId = $internalProgressiveId;
+    }
+
+} 

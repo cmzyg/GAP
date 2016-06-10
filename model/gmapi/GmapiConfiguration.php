@@ -1,0 +1,128 @@
+<?php
+
+namespace model\gmapi;
+
+/**
+ * GmapiConfiguration
+ *
+ * @Table(name="gap_configuration", indexes={@Index(name="fk_gap_configuration_1_idx", columns={"wallet_authorisation"}), @Index(name="fk_gap_configuration_2_idx", columns={"wallet"})})
+ * @Entity(repositoryClass="model\gmapi\GmapiRepository")
+ */
+class GmapiConfiguration
+{
+    /**
+     * @var integer
+     *
+     * @Column(name="id", type="integer", nullable=false)
+     * @Id
+     * @GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var integer
+     *
+     * @Column(name="test", type="integer", nullable=false)
+     */
+    private $test = '0';
+
+    /**
+     * @var GmapiWalletAuthorisation
+     *
+     * @ManyToOne(targetEntity="GmapiWalletAuthorisation")
+     * @JoinColumns({
+     *   @JoinColumn(name="wallet_authorisation", referencedColumnName="id")
+     * })
+     */
+    private $walletAuthorisation;
+
+    /**
+     * @var GmapiWallet
+     *
+     * @ManyToOne(targetEntity="GmapiWallet")
+     * @JoinColumns({
+     *   @JoinColumn(name="wallet", referencedColumnName="id")
+     * })
+     */
+    private $wallet;
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set test
+     *
+     * @param integer $test
+     * @return GmapiConfiguration
+     */
+    public function setTest($test)
+    {
+        $this->test = $test;
+
+        return $this;
+    }
+
+    /**
+     * Get test
+     *
+     * @return integer 
+     */
+    public function getTest()
+    {
+        return $this->test;
+    }
+
+    /**
+     * Set walletAuthorisation
+     *
+     * @param GmapiWalletAuthorisation $walletAuthorisation
+     * @return GmapiConfiguration
+     */
+    public function setWalletAuthorisation(GmapiWalletAuthorisation $walletAuthorisation = null)
+    {
+        $this->walletAuthorisation = $walletAuthorisation;
+
+        return $this;
+    }
+
+    /**
+     * Get walletAuthorisation
+     *
+     * @return GmapiWalletAuthorisation
+     */
+    public function getWalletAuthorisation()
+    {
+        return $this->walletAuthorisation;
+    }
+
+    /**
+     * Set wallet
+     *
+     * @param GmapiWallet $wallet
+     * @return GmapiConfiguration
+     */
+    public function setWallet(GmapiWallet $wallet = null)
+    {
+        $this->wallet = $wallet;
+
+        return $this;
+    }
+
+    /**
+     * Get wallet
+     *
+     * @return GmapiWallet
+     */
+    public function getWallet()
+    {
+        return $this->wallet;
+    }
+}

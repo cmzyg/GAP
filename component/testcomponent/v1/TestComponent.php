@@ -1,0 +1,39 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 27/10/14
+ * Time: 14:40
+ */
+
+namespace component\testcomponent\v1;
+
+
+
+use component\configurationmanager\v1\ConfigurationManager;
+use exceptions\Exception;
+use exceptions\ValidationException;
+
+class TestComponent extends \component\testcomponent\TestComponent{
+
+
+    public function testEx()
+    {
+        try
+        {
+        $cm = new ConfigurationManager();
+        $l = $cm->getConfiguration(51);
+
+            $cms = new ConfigurationManager();
+            $ls = $cm->getConfiguration(51);
+        throw new ValidationException("i failed because of Rafal",0);
+        }catch (Exception $ex)
+        {
+            self::getLogger()->addException($ex,$this);
+            echo "i was added";
+        }
+        
+    }
+
+
+} 

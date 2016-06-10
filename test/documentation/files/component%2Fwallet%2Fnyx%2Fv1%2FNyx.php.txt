@@ -1,0 +1,482 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 13/10/14
+ * Time: 15:08
+ */
+
+namespace component\wallet\nyx\v1;
+
+
+use component\communication\Communication;
+use component\communication\OutGoingRequest;
+use component\request\BeforeLoginRequest;
+use component\request\EndRequest;
+use component\request\PlaceAndSettleBetRequest;
+use component\request\PlaceBetRequest;
+use component\request\Request;
+use component\request\SettleBetRequest;
+use component\wallet\Wallet;
+use component\wallet\WalletInterface;
+use component\wallet\WalletResponse;
+use model\GMAPIDataRepository;
+
+/**
+ * Class Nyx
+ * @author Samuel I. Amaziro
+ * @package component\wallet\nyx\v1
+ */
+class Nyx extends \component\wallet\nyx\Nyx implements WalletInterface{
+
+    protected $retryCount = 0;
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Before Login Process
+     * @return mixed
+     */
+    public function beforeLogin()
+    {
+        $outPut = $this->getBalance();
+
+        $response = $outPut[0];
+        $curlCode = $outPut[1];
+        $httpCode = $outPut[2];
+        $httpHeader = $outPut[3];
+
+        $this->processResponse = array();
+
+        if($curlCode === 0 && $httpCode == 200)
+        {
+            if($response->getReturnCode() == 0)
+            {
+                $userBalance = intval(($response->getBalance() * 100));
+                $userId = $response->getAccountId();
+                $cashBalance = intval(($response->getBalance() * 100));
+                $sessionId = $this->request->getSessionId().'::'.time();
+                $token = "";
+                $freeRoundId = 0;
+                $freeRoundProvider = 0;
+                $betWinSupport = $this->request->getLicenseeObject()->getFastSpeed();
+                $coinValue = 'my coin value';
+                $coinValueDefault = 'my default coin value';
+                $currencyCode =  "";
+                $currencyDecimal = "";
+                $currencyThousand = "";
+                $currencyDecimalDigits = "";
+                $currencyPrefix = "";
+                $currencySuffix = "";
+                $freeBalance = $response->getBonusBalance();
+                $promotion = 0;
+                $walletResponse = new WalletResponse();
+                $this->processResponse = $walletResponse->beforeLoginResponse($userId,$userBalance, $cashBalance, $sessionId, $freeRoundProvider, $freeRoundId, $token, $betWinSupport,
+                    $coinValue, $coinValueDefault, $currencyCode, $currencyDecimal, $currencyThousand, $currencyDecimalDigits, $currencyPrefix, $currencySuffix, $promotion, $freeBalance);
+                $this->processStatus = true;
+            }
+            else
+            {
+                $this->processResponse['seamless_error'] = $httpCode;
+                $this->processResponse['Incorrect Wallet Answer'] = $response->getError();
+            }
+        }
+        elseif($curlCode !== 0)
+        {
+             $this->processResponse['seamless_error'] = $response;
+             $this->processResponse['curl_code'] = $curlCode;
+
+        }elseif($httpCode !== 200)
+        {
+            $this->processResponse['seamless_error'] = "HTTP ".$httpCode;
+            $this->processResponse['Description'] = $httpHeader;
+        }
+
+    }
+
+    /**
+     * Place Bet Process
+     * @return mixed
+     */
+    public function placeBet()
+    {
+        $outPut = $this->wager();
+
+        $response = $outPut[0];
+        $curlCode = $outPut[1];
+        $httpCode = $outPut[2];
+        $httpHeader = $outPut[3];
+
+        $this->processResponse = array();
+
+        if($curlCode === 0 && $httpCode == 200)
+        {
+            if($response->getReturnCode() == 0)
+            {
+                $walletResponse = new WalletResponse();
+                $this->processResponse = $walletResponse->placeBetResponse($response->getBalance(), $response->getBalance(), 0, '',$response->getBonusBalance());
+                $this->processStatus = true;
+            }
+            else
+            {
+                $this->processResponse['seamless_error'] = $httpCode;
+                $this->processResponse['Incorrect Wallet Answer'] = $response->getError();
+            }
+        }
+        elseif($curlCode !== 0)
+        {
+            if($curlCode == 28 && $this->retryCount < 3)
+            {
+                $this->retryCount = $this->retryCount+1;
+                $this->placeBet();
+            }
+            else
+            {
+                $this->cancelWager();
+                $this->processResponse['seamless_error'] = $response;
+                $this->processResponse['curl_code'] = $curlCode;
+            }
+        }elseif($httpCode !== 200)
+        {
+            $this->processResponse['seamless_error'] = "HTTP ".$httpCode;
+            $this->processResponse['Description'] = $httpHeader;
+        }
+    }
+
+    /**
+     * Settle Bet Process
+     * @return mixed
+     */
+    public function settleBet()
+    {
+        if($this->request->getFreeSpin() == 1 || $this->request->getFreeSpin() == 2)
+        {
+            $this->request->setWinAmount(($this->request->getWinAmount()/100)+(1/100));
+            if($this->request->getFreeSpin() == 2)
+            {
+                $this->wager(1);
+            }
+
+            $outPut = $this->result(false);
+        }
+        else
+        {
+            $this->wager(1);
+            $outPut = $this->result();
+        }
+
+
+        $response = $outPut[0];
+        $curlCode = $outPut[1];
+        $httpCode = $outPut[2];
+        $httpHeader = $outPut[3];
+
+        $this->processResponse = array();
+
+        if($curlCode === 0 && $httpCode == 200)
+        {
+            if($response->getReturnCode() == 0)
+            {
+                $walletResponse = new WalletResponse();
+                $this->processResponse = $walletResponse->settleBetResponse($response->getBalance(), $response->getBalance(), '',$response->getBonusBalance());
+                $this->processStatus = true;
+            }
+            else
+            {
+                $this->processResponse['seamless_error'] = $httpCode;
+                $this->processResponse['Incorrect Wallet Answer'] = $response->getError();
+            }
+        }
+        elseif($curlCode !== 0)
+        {
+            if($curlCode == 28 && $this->retryCount < 3)
+            {
+                $this->retryCount = $this->retryCount+1;
+                $this->settleBet();
+            }
+            else
+            {
+                $this->processResponse['seamless_error'] = $response;
+                $this->processResponse['curl_code'] = $curlCode;
+            }
+        }elseif($httpCode !== 200)
+        {
+            $this->processResponse['seamless_error'] = "HTTP ".$httpCode;
+            $this->processResponse['Description'] = $httpHeader;
+        }
+    }
+
+    /**
+     * Place and Settle Bet Process
+     * @return mixed
+     */
+    public function placeAndSettleBet()
+    {
+        $this->processResponse = array("result" => "Ok");
+        $this->processStatus = true;
+    }
+
+    /**
+     * End Process
+     * @return mixed
+     */
+    public function end()
+    {
+        $this->processResponse = array("internal error" => "end Not Implemented");
+    }
+
+    /**
+     * @return array
+     */
+    protected function getAccount()
+    {
+        // New Request
+        $nyxRequest = new OutGoingRequest();
+        $nyxRequest->setUrl($this->request->getLicenseeObject()->getUrl());
+        // Set Authorization for communication to 3rd Party
+        $login = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getLogin();
+        $password = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getPassword();
+        // Compose request data
+        $nyxRequestData = new NyxRequestData($login,$password,$this->request->getSessionId(), "getaccount");
+        // Set request data and request response conversion type
+        $nyxRequest->setData($nyxRequestData->getRequestData());
+        $nyxRequest->setRequestType("XML2ARRAY");
+        // Set Request Object
+        $this->communicationComponent->setOutGoingRequest($nyxRequest);
+        // Parse sent request response
+        $sendRequest = $this->communicationComponent->sendGetRequest();
+        if($sendRequest->isRequestSuccessful())
+        {
+            $response = new NyxResponseParser($sendRequest->getRequestResponse());
+        }
+        else
+        {
+            $response = $sendRequest->getRequestError();
+        }
+
+        return array($response, $sendRequest->getStatusCode(), $sendRequest->getHttpCode(), $sendRequest->getRequestHeader());
+
+    }
+
+    /**
+     * @return array
+     */
+    protected function getBalance()
+    {
+        //Get Account Details
+        $account = $this->getAccount();
+        $accountObject = $account[0];
+        if(!is_object($accountObject))
+        {
+            return $account;
+        }
+        // New Request
+        $nyxRequest = new OutGoingRequest();
+        $nyxRequest->setUrl($this->request->getLicenseeObject()->getUrl());
+        // Set Authorization for communication to 3rd Party
+        $login = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getLogin();
+        $password = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getPassword();
+        // Compose request data
+        $nyxRequestData = new NyxRequestData($login,$password,$this->request->getSessionId(), "getbalance");
+        $nyxRequestData->setGameId($this->request->getSkinId());
+        // Set request data and request response conversion type
+        $nyxRequest->setData($nyxRequestData->getRequestData());
+        $nyxRequest->setRequestType("XML2ARRAY");
+        // Set Request Object
+        $this->communicationComponent->setOutGoingRequest($nyxRequest);
+        // Parse sent request response
+        $sendRequest = $this->communicationComponent->sendGetRequest();
+        if($sendRequest->isRequestSuccessful())
+        {
+            $response = new NyxResponseParser($sendRequest->getRequestResponse());
+            $response->setAccountId($accountObject->getAccountId());
+        }
+        else
+        {
+            $response = $sendRequest->getRequestError();
+        }
+
+        return array($response, $sendRequest->getStatusCode(), $sendRequest->getHttpCode(), $sendRequest->getRequestHeader());
+    }
+
+    protected function wager($betAmount = null)
+    {
+        // New Request
+        $nyxRequest = new OutGoingRequest();
+        $nyxRequest->setUrl($this->request->getLicenseeObject()->getUrl());
+        // Set Authorization for communication to 3rd Party
+        $login = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getLogin();
+        $password = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getPassword();
+        // Compose request data
+        @list($nyxSessionId, $notNeeded) = explode("::", $this->request->getSessionId());
+        $nyxRequestData = new NyxRequestData($login,$password,$nyxSessionId, "wager");
+        // Set parameters for request
+        $nyxRequestData->setAccountId($this->request->getUserId());
+        $nyxRequestData->setBetAmount(((is_null($betAmount)) ? $this->request->getBetAmount()/100 : $betAmount/100));
+        $nyxRequestData->setRoundId($this->request->getRoundId());;
+        $nyxRequestData->setTransactionId(((is_null($betAmount)) ? $this->request->getTransactionId() : $this->fakeBetTransactionIdGenerator()));
+        $nyxRequestData->setGameId($this->request->getSkinId());
+        $nyxRequestData->setDescription("");
+        $database = new GMAPIDataRepository('irsbo');
+        $rows = $database->fetchGameAndSkinId($this->request->getGameId(), $this->request->getSkinId());
+        $gameType = ((strtolower($rows['type']) == 'flash') ? 'Flash' : 'HTML');
+        $nyxRequestData->setGameClientType($gameType);
+        // Set request data and request response conversion type
+        $nyxRequest->setData($nyxRequestData->getRequestData());
+        $nyxRequest->setRequestType("XML2ARRAY");
+        //var_dump($nyxRequestData->getRequestData());
+        // Set Request Object
+        $this->communicationComponent->setOutGoingRequest($nyxRequest);
+        // Parse sent request response
+        $sendRequest = $this->communicationComponent->sendGetRequest();
+        if($sendRequest->isRequestSuccessful())
+        {
+            $response = new NyxResponseParser($sendRequest->getRequestResponse());
+        }
+        else
+        {
+            $response = $sendRequest->getRequestError();
+        }
+
+        return array($response, $sendRequest->getStatusCode(), $sendRequest->getHttpCode(), $sendRequest->getRequestHeader());
+    }
+
+    /**
+     * @param bool $complete
+     * @return array
+     */
+    protected function result($complete = true)
+    {
+        // New Request
+        $nyxRequest = new OutGoingRequest();
+        $nyxRequest->setUrl($this->request->getLicenseeObject()->getUrl());
+        // Set Authorization for communication to 3rd Party
+        $login = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getLogin();
+        $password = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getPassword();
+        // Compose request data
+       
+        list($nyxSessionId, $notNeeded) = explode("::", $this->request->getSessionId());
+        $nyxRequestData = new NyxRequestData($login,$password,$nyxSessionId, "result");
+        // Set parameters for request
+        $nyxRequestData->setAccountId($this->request->getUserId());
+        $nyxRequestData->setResult($this->request->getWinAmount()/100);
+        $nyxRequestData->setRoundId($this->request->getRoundId());;
+        $nyxRequestData->setTransactionId($this->request->getTransactionId());
+        $nyxRequestData->setGameId($this->request->getSkinId());
+        $nyxRequestData->setDescription("");
+        $database = new GMAPIDataRepository('irsbo');
+        $rows = $database->fetchGameAndSkinId($this->request->getGameId(), $this->request->getSkinId());
+        $gameType = ((strtolower($rows['type']) == 'flash') ? 'Flash' : 'HTML');
+        $nyxRequestData->setGameClientType($gameType);
+        $nyxRequestData->setGameStatus((($complete) ? 'complete' : 'pending'));
+        // Set request data and request response conversion type
+        $nyxRequest->setData($nyxRequestData->getRequestData());
+        $nyxRequest->setRequestType("XML2ARRAY");
+
+        // Set Request Object
+        $this->communicationComponent->setOutGoingRequest($nyxRequest);
+        // Parse sent request response
+        $sendRequest = $this->communicationComponent->sendGetRequest();
+        if($sendRequest->isRequestSuccessful())
+        {
+            $response = new NyxResponseParser($sendRequest->getRequestResponse());
+        }
+        else
+        {
+            $response = $sendRequest->getRequestError();
+        }
+
+        return array($response, $sendRequest->getStatusCode(), $sendRequest->getHttpCode(), $sendRequest->getRequestHeader());
+    }
+
+    public function fakeBetTransactionIdGenerator(){
+        $min = 9000000000000000000 + time();
+        $max = 9223372036854775807;
+
+        return mt_rand($min, $max);
+    }
+
+    protected function cancelWager()
+    {
+        // New Request
+        $nyxRequest = new OutGoingRequest();
+        $nyxRequest->setUrl($this->request->getLicenseeObject()->getUrl());
+        // Set Authorization for communication to 3rd Party
+        $login = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getLogin();
+        $password = $this->request->getLicenseeObject()->getGmapiConfiguration()->getWalletAuthorisation()->getPassword();
+        // Compose request data
+
+        list($nyxSessionId, $notNeeded) = explode("::", $this->request->getSessionId());
+        $nyxRequestData = new NyxRequestData($login,$password,$nyxSessionId, "cancelwager");
+        // Set parameters for request
+        $nyxRequestData->setAccountId($this->request->getUserId());
+        $nyxRequestData->setCancelWagerAmount($this->request->getBetAmount());
+        $nyxRequestData->setRoundId($this->request->getRoundId());;
+        $nyxRequestData->setTransactionId($this->request->getTransactionId());
+        $nyxRequestData->setGameId($this->request->getSkinId());
+
+        // Set request data and request response conversion type
+        $nyxRequest->setData($nyxRequestData->getRequestData());
+        $nyxRequest->setRequestType("XML2ARRAY");
+
+        // Set Request Object
+        $this->communicationComponent->setOutGoingRequest($nyxRequest);
+        // Parse sent request response
+        $sendRequest = $this->communicationComponent->sendGetRequest();
+        if($sendRequest->isRequestSuccessful())
+        {
+            $response = new NyxResponseParser($sendRequest->getRequestResponse());
+        }
+        else
+        {
+            $response = $sendRequest->getRequestError();
+        }
+
+        return array($response, $sendRequest->getStatusCode(), $sendRequest->getHttpCode(), $sendRequest->getRequestHeader());
+    }
+
+
+
+
+    /**
+     * @param Request $request
+     * @param Communication $communication
+     * @return mixed|void
+     */
+    public function executeProcess(Request $request, Communication $communication)
+    {
+        $this->communicationComponent = $communication;
+        $this->request = $request;
+
+        if($request instanceof BeforeLoginRequest)
+        {
+            $this->beforeLogin();
+        }
+        elseif($request instanceof PlaceBetRequest)
+        {
+            $this->placeBet();
+        }
+        elseif($request instanceof SettleBetRequest)
+        {
+            $this->settleBet();
+        }
+        elseif($request instanceof PlaceAndSettleBetRequest)
+        {
+            $this->processResponse = array("error" => $this->NotSupported());
+        }
+        elseif($request instanceof EndRequest)
+        {
+            $this->end();
+        }
+        else
+        {
+            $this->processResponse = array("error" => $this->NotSupported());
+        }
+    }
+
+
+
+} 

@@ -1,0 +1,607 @@
+<?php
+
+namespace model\gmapi;
+
+/**
+ * GmapiLicensee
+ *
+ * @Table(name="gap_licensee", indexes={@Index(name="fk_gap_licensee_1_idx", columns={"gmapi_configuration"})})
+ * @Entity(repositoryClass="model\gmapi\GmapiRepository")
+ */
+class GmapiLicensee
+{
+    /**
+     * @var integer
+     *
+     * @Column(name="id_licensee", type="integer", nullable=false)
+     * @Id
+     * @GeneratedValue(strategy="IDENTITY")
+     */
+    private $idLicensee;
+
+
+
+    /**
+     * @var string
+     *
+     * @Column(name="licensee_name", type="string", length=45, nullable=false)
+     */
+    private $licenseeName;
+
+    /**
+     * @var string
+     *
+     * @Column(name="regulation_number", type="string", length=45, nullable=false)
+     */
+    private $regulationNumber;
+
+    /**
+     * @var string
+     *
+     * @Column(name="contact_person", type="string", length=45, nullable=true)
+     */
+    private $contactPerson;
+
+    /**
+     * @var string
+     *
+     * @Column(name="contact_email", type="string", length=255, nullable=true)
+     */
+    private $contactEmail;
+
+    /**
+     * @var integer
+     *
+     * @Column(name="configuration_id", type="integer", nullable=true)
+     */
+    private $configurationId;
+
+    /**
+     * @var boolean
+     *
+     * @Column(name="subcasinos", type="integer", nullable=true)
+     */
+    private $subcasinos;
+
+    /**
+     * @var string
+     *
+     * @Column(name="sceret_key", type="string", length=32, nullable=false)
+     */
+    private $sceretKey;
+
+    /**
+     * @var string
+     *
+     * @Column(name="db_prefix", type="string", length=45, nullable=false)
+     */
+    private $dbPrefix;
+
+    /**
+     * @var string
+     *
+     * @Column(name="url", type="string", length=255, nullable=false)
+     */
+    private $url;
+
+    /**
+     * @var string
+     *
+     * @Column(name="win_limit", type="string", length=45, nullable=true)
+     */
+    private $winLimit;
+
+    /**
+     * @var integer
+     *
+     * @Column(name="licensee_status", type="integer", nullable=false)
+     */
+    private $licenseeStatus = '0';
+
+    /**
+     * @var string
+     *
+     * @Column(name="game_history_api_url", type="string", length=256, nullable=true)
+     */
+    private $gameHistoryApiUrl;
+
+    /**
+     * @var boolean
+     *
+     * @Column(name="free_round", type="integer", nullable=true)
+     */
+    private $freeRound;
+
+    /**
+     * @var boolean
+     *
+     * @Column(name="fast_speed", type="integer", nullable=true)
+     */
+    private $fastSpeed;
+
+    /**
+     * @var boolean
+     *
+     * @Column(name="encode", type="integer", nullable=false)
+     */
+    private $encode = '0';
+
+    /**
+     * @var integer
+     *
+     * @Column(name="transaction_id_length", type="integer", nullable=false)
+     */
+    private $transactionIdLength = '32';
+
+    /**
+     * @var integer
+     *
+     * @Column(name="round_id_length", type="integer", nullable=false)
+     */
+    private $roundIdLength = '48';
+
+    /**
+     * @var \DateTime
+     *
+     * @Column(name="last_updated", type="datetime", nullable=true)
+     */
+    private $lastUpdated;
+
+    /**
+     * @var GmapiConfiguration
+     *
+     * @ManyToOne(targetEntity="GmapiConfiguration")
+     * @JoinColumns({
+     *   @JoinColumn(name="gmapi_configuration", referencedColumnName="id")
+     * })
+     */
+    private $gmapiConfiguration;
+
+
+    /**
+     * Get idLicensee
+     *
+     * @return integer 
+     */
+    public function getIdLicensee()
+    {
+        return $this->idLicensee;
+    }
+
+    /**
+     * Set licenseeName
+     *
+     * @param string $licenseeName
+     * @return GmapiLicensee
+     */
+    public function setLicenseeName($licenseeName)
+    {
+        $this->licenseeName = $licenseeName;
+
+        return $this;
+    }
+
+    /**
+     * Get licenseeName
+     *
+     * @return string 
+     */
+    public function getLicenseeName()
+    {
+        return $this->licenseeName;
+    }
+
+    /**
+     * Set regulationNumber
+     *
+     * @param string $regulationNumber
+     * @return GmapiLicensee
+     */
+    public function setRegulationNumber($regulationNumber)
+    {
+        $this->regulationNumber = $regulationNumber;
+
+        return $this;
+    }
+
+    /**
+     * Get regulationNumber
+     *
+     * @return string 
+     */
+    public function getRegulationNumber()
+    {
+        return $this->regulationNumber;
+    }
+
+    /**
+     * Set contactPerson
+     *
+     * @param string $contactPerson
+     * @return GmapiLicensee
+     */
+    public function setContactPerson($contactPerson)
+    {
+        $this->contactPerson = $contactPerson;
+
+        return $this;
+    }
+
+    /**
+     * Get contactPerson
+     *
+     * @return string 
+     */
+    public function getContactPerson()
+    {
+        return $this->contactPerson;
+    }
+
+    /**
+     * Set contactEmail
+     *
+     * @param string $contactEmail
+     * @return GmapiLicensee
+     */
+    public function setContactEmail($contactEmail)
+    {
+        $this->contactEmail = $contactEmail;
+
+        return $this;
+    }
+
+    /**
+     * Get contactEmail
+     *
+     * @return string 
+     */
+    public function getContactEmail()
+    {
+        return $this->contactEmail;
+    }
+
+    /**
+     * Set configurationId
+     *
+     * @param integer $configurationId
+     * @return GmapiLicensee
+     */
+    public function setConfigurationId($configurationId)
+    {
+        $this->configurationId = $configurationId;
+
+        return $this;
+    }
+
+    /**
+     * Get configurationId
+     *
+     * @return integer 
+     */
+    public function getConfigurationId()
+    {
+        return $this->configurationId;
+    }
+
+    /**
+     * Set subcasinos
+     *
+     * @param boolean $subcasinos
+     * @return GmapiLicensee
+     */
+    public function setSubcasinos($subcasinos)
+    {
+        $this->subcasinos = $subcasinos;
+
+        return $this;
+    }
+
+    /**
+     * Get subcasinos
+     *
+     * @return boolean 
+     */
+    public function getSubcasinos()
+    {
+        return $this->subcasinos;
+    }
+
+    /**
+     * Set sceretKey
+     *
+     * @param string $sceretKey
+     * @return GmapiLicensee
+     */
+    public function setSceretKey($sceretKey)
+    {
+        $this->sceretKey = $sceretKey;
+
+        return $this;
+    }
+
+    /**
+     * Get sceretKey
+     *
+     * @return string 
+     */
+    public function getSceretKey()
+    {
+        return $this->sceretKey;
+    }
+
+    /**
+     * Set dbPrefix
+     *
+     * @param string $dbPrefix
+     * @return GmapiLicensee
+     */
+    public function setDbPrefix($dbPrefix)
+    {
+        $this->dbPrefix = $dbPrefix;
+
+        return $this;
+    }
+
+    /**
+     * Get dbPrefix
+     *
+     * @return string 
+     */
+    public function getDbPrefix()
+    {
+        return $this->dbPrefix;
+    }
+
+    /**
+     * Set url
+     *
+     * @param string $url
+     * @return GmapiLicensee
+     */
+    public function setUrl($url)
+    {
+        $this->url = $url;
+
+        return $this;
+    }
+
+    /**
+     * Get url
+     *
+     * @return string 
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    /**
+     * Set winLimit
+     *
+     * @param string $winLimit
+     * @return GmapiLicensee
+     */
+    public function setWinLimit($winLimit)
+    {
+        $this->winLimit = $winLimit;
+
+        return $this;
+    }
+
+    /**
+     * Get winLimit
+     *
+     * @return string 
+     */
+    public function getWinLimit()
+    {
+        return $this->winLimit;
+    }
+
+    /**
+     * Set licenseeStatus
+     *
+     * @param integer $licenseeStatus
+     * @return GmapiLicensee
+     */
+    public function setLicenseeStatus($licenseeStatus)
+    {
+        $this->licenseeStatus = $licenseeStatus;
+
+        return $this;
+    }
+
+    /**
+     * Get licenseeStatus
+     *
+     * @return integer 
+     */
+    public function getLicenseeStatus()
+    {
+        return $this->licenseeStatus;
+    }
+
+    /**
+     * Set gameHistoryApiUrl
+     *
+     * @param string $gameHistoryApiUrl
+     * @return GmapiLicensee
+     */
+    public function setGameHistoryApiUrl($gameHistoryApiUrl)
+    {
+        $this->gameHistoryApiUrl = $gameHistoryApiUrl;
+
+        return $this;
+    }
+
+    /**
+     * Get gameHistoryApiUrl
+     *
+     * @return string 
+     */
+    public function getGameHistoryApiUrl()
+    {
+        return $this->gameHistoryApiUrl;
+    }
+
+    /**
+     * Set freeRound
+     *
+     * @param int $freeRound
+     * @return GmapiLicensee
+     */
+    public function setFreeRound($freeRound)
+    {
+        $this->freeRound = $freeRound;
+
+        return $this;
+    }
+
+    /**
+     * Get freeRound
+     *
+     * @return int
+     */
+    public function getFreeRound()
+    {
+        return $this->freeRound;
+    }
+
+    /**
+     * Set fastSpeed
+     *
+     * @param int $fastSpeed
+     * @return GmapiLicensee
+     */
+    public function setFastSpeed($fastSpeed)
+    {
+        $this->fastSpeed = $fastSpeed;
+
+        return $this;
+    }
+
+    /**
+     * Get fastSpeed
+     *
+     * @return int
+     */
+    public function getFastSpeed()
+    {
+        return $this->fastSpeed;
+    }
+
+    /**
+     * Set encode
+     *
+     * @param int $encode
+     * @return GmapiLicensee
+     */
+    public function setEncode($encode)
+    {
+        $this->encode = $encode;
+
+        return $this;
+    }
+
+    /**
+     * Get encode
+     *
+     * @return int
+     */
+    public function getEncode()
+    {
+        return $this->encode;
+    }
+
+    /**
+     * Set transactionIdLength
+     *
+     * @param integer $transactionIdLength
+     * @return GmapiLicensee
+     */
+    public function setTransactionIdLength($transactionIdLength)
+    {
+        $this->transactionIdLength = $transactionIdLength;
+
+        return $this;
+    }
+
+    /**
+     * Get transactionIdLength
+     *
+     * @return integer 
+     */
+    public function getTransactionIdLength()
+    {
+        return $this->transactionIdLength;
+    }
+
+    /**
+     * Set roundIdLength
+     *
+     * @param integer $roundIdLength
+     * @return GmapiLicensee
+     */
+    public function setRoundIdLength($roundIdLength)
+    {
+        $this->roundIdLength = $roundIdLength;
+
+        return $this;
+    }
+
+    /**
+     * Get roundIdLength
+     *
+     * @return integer 
+     */
+    public function getRoundIdLength()
+    {
+        return $this->roundIdLength;
+    }
+
+    /**
+     * Set lastUpdated
+     *
+     * @param \DateTime $lastUpdated
+     * @return GmapiLicensee
+     */
+    public function setLastUpdated($lastUpdated)
+    {
+        $this->lastUpdated = $lastUpdated;
+
+        return $this;
+    }
+
+    /**
+     * Get lastUpdated
+     *
+     * @return \DateTime 
+     */
+    public function getLastUpdated()
+    {
+        return $this->lastUpdated;
+    }
+
+    /**
+     * Set gmapiConfiguration
+     *
+     * @param GmapiConfiguration $gmapiConfiguration
+     * @return GmapiLicensee
+     */
+    public function setGmapiConfiguration(GmapiConfiguration $gmapiConfiguration = null)
+    {
+        $this->gmapiConfiguration = $gmapiConfiguration;
+
+        return $this;
+    }
+
+    /**
+     * Get gmapiConfiguration
+     *
+     * @return GmapiConfiguration
+     */
+    public function getGmapiConfiguration()
+    {
+        return $this->gmapiConfiguration;
+    }
+}

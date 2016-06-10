@@ -1,0 +1,115 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 13/10/14
+ * Time: 15:05
+ */
+
+namespace component\wallet;
+
+
+use application\BaseComponent;
+use component\wallet\nyx\Nyx;
+
+/**
+ * Class Wallet
+ * @author Samuel I. Amaziro
+ * @package component\wallet
+ */
+class Wallet extends BaseComponent{
+
+    /**
+     * Type of wallet
+     * @var string
+     */
+    protected $currentVersion = "nyx";
+    /**
+     * Status of the current process
+     * @var bool
+     */
+    protected $processStatus = false;
+    /**
+     * Output of the current process as an associative array
+     * @var array
+     */
+    protected $processResponse = array();
+    /**
+     * If the error encountered should be shown or not
+     * @var bool
+     */
+    protected $showProcessError = false;
+    /**
+     * The request object containing all the details of the error
+     * @var \component\request\Request
+     */
+    protected $request;
+    /**
+     * The Communication component to use for communicating with third parties using various methods
+     * @var \component\communication\Communication|\component\communication\v1\Communication
+     */
+    protected $communicationComponent;
+
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    /**
+     * Loads a component based on current version
+     * @return mixed|$this|\component\wallet\nyx\Nyx
+     */
+    public function loadComponent()
+    {
+        return $this->selectVersion($this->currentVersion);
+    }
+
+    /**
+     * Selects current version of component
+     * @param $version
+     * @return $this|\component\wallet\nyx\Nyx
+     */
+    private function selectVersion($version)
+    {
+        switch($version)
+        {
+            case "nyx":
+                return new Nyx();
+            default:
+                return $this;
+        }
+
+    }
+
+    public function NotSupported()
+    {
+        return "Action is not Supported";
+    }
+
+    /**
+     * @return bool
+     */
+    public function isProcessSuccessful()
+    {
+        return $this->processStatus;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getShowProcessError()
+    {
+        return $this->showProcessError;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProcessResponse()
+    {
+        return $this->processResponse;
+    }
+
+
+} 

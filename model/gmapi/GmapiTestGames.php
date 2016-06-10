@@ -1,0 +1,128 @@
+<?php
+
+namespace model\gmapi;
+
+/**
+ * GmapiTestGames
+ *
+ * @Table(name="gap_test_games", indexes={@Index(name="fk_gap_test_games_1_idx", columns={"license_id"}), @Index(name="fk_gap_test_games_2_idx", columns={"skin_id"})})
+ * @Entity(repositoryClass="model\gmapi\GmapiRepository")
+ */
+class GmapiTestGames
+{
+    /**
+     * @var integer
+     *
+     * @Column(name="id", type="integer", nullable=false)
+     * @Id
+     * @GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @Column(name="component_name", type="string", length=100, nullable=false)
+     */
+    private $componentName;
+
+    /**
+     * @var GmapiLicensee
+     *
+     * @ManyToOne(targetEntity="GmapiLicensee")
+     * @JoinColumns({
+     *   @JoinColumn(name="license_id", referencedColumnName="id_licensee")
+     * })
+     */
+    private $license;
+
+    /**
+     * @var GmapiGames
+     *
+     * @ManyToOne(targetEntity="GmapiGames")
+     * @JoinColumns({
+     *   @JoinColumn(name="skin_id", referencedColumnName="skin_id")
+     * })
+     */
+    private $skin;
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set componentName
+     *
+     * @param string $componentName
+     * @return GmapiTestGames
+     */
+    public function setComponentName($componentName)
+    {
+        $this->componentName = $componentName;
+
+        return $this;
+    }
+
+    /**
+     * Get componentName
+     *
+     * @return string 
+     */
+    public function getComponentName()
+    {
+        return $this->componentName;
+    }
+
+    /**
+     * Set license
+     *
+     * @param GmapiLicensee $license
+     * @return GmapiTestGames
+     */
+    public function setLicense(GmapiLicensee $license = null)
+    {
+        $this->license = $license;
+
+        return $this;
+    }
+
+    /**
+     * Get license
+     *
+     * @return GmapiLicensee
+     */
+    public function getLicense()
+    {
+        return $this->license;
+    }
+
+    /**
+     * Set skin
+     *
+     * @param GmapiGames $skin
+     * @return GmapiTestGames
+     */
+    public function setSkin(GmapiGames $skin = null)
+    {
+        $this->skin = $skin;
+
+        return $this;
+    }
+
+    /**
+     * Get skin
+     *
+     * @return GmapiGames
+     */
+    public function getSkin()
+    {
+        return $this->skin;
+    }
+}

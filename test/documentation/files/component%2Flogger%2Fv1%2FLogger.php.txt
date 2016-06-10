@@ -1,0 +1,189 @@
+<?php
+
+/**
+ * Description of Logger
+ *
+ * @author rafal
+ */
+
+namespace component\logger\v1;
+
+use component\logger\ErrorLoggerInterface;
+use exceptions\Exception as InternalException;
+
+class Logger extends \component\logger\Logger implements ErrorLoggerInterface {
+
+    private $exceptions = array();
+    private $mySqlErrors = array();
+    private $mySqlErrorPointer = 0;
+    private $loginStack = array();
+    private $showLogins = false;
+
+    function __construct()
+    {
+        $this->login($this);
+    }
+
+    /**
+
+     * Method to store all occurred Errors
+     * @param \Exception $ex
+     * @return boolean - Returns true on success
+     */
+    public function addException(\Exception $ex, &$thisone = null)
+    {
+        $troublemaker = ($thisone != null) ? $thisone : end($this->loginStack);
+
+        if ($this->mySqlErrorPointer != count($this->mySqlErrors))
+        {
+            $this->exceptions[] = array('exception' => $ex, 'name' => $troublemaker, 'mysqlError' => $this->mySqlErrorPointer);
+            $this->mySqlErrorPointer++;
+        } else
+        {
+            $this->exceptions[] = array('exception' => $ex, 'name' => $troublemaker);
+        }
+        return true;
+    }
+
+    /**
+     * Method to store Exceptions in files, requires gmAPI response to Game Server
+     * @param string $gmAPIResponse
+     * @return int - Returns number of Exceptions added to Logger
+     */
+    public function getExceptionMessages($gmAPIResponse)
+    {
+
+        /* temporary error logging */
+        $eStr = '';
+        foreach ($this->exceptions as $ex)
+        {
+            $e = $ex['exception'];
+
+            $msgArr = array(
+                '<p><b>Exception [<i>' . $e->getCode() . '</i>]:</b>',
+                '<b><i>Message:</i></b> ' . $e->getMessage(),
+                '<b><i>Name:</i></b> ' . get_class($ex['name']),
+                '<b><i>Component stack:</i></b> ' .$this->getStack());
+
+            if ($e instanceof InternalException)
+            {
+                $msgArr[] = '<b><i>Status:</i></b> ' . $e->getCurrentStatus();
+                $msgArr[] = '<b><i>Type:</i></b> ' . $e->getType();
+                $msgArr[] = '<b><i>SubType:</i></b> ' . $e->getSubType();
+                $msgArr[] = '<b><i>Summary:</i></b> ' . $e->getSummary();
+            }
+
+            if (isset($ex['mysqlError']))
+            {
+                $msgArr[] = '<b><i>MySQL Error:</i></b> ' . $this->mySqlErrors[$ex['mysqlError']]['error'];
+                $msgArr[] = '<b><i>MySQL Query:</i></b> ' . $this->mySqlErrors[$ex['mysqlError']]['query'];
+            }
+
+            $msgArr[] = '<b><i>gmAPI Response:</i></b> ' . $gmAPIResponse;
+            $msgArr[] = '<b><i>File:</i></b> ' . $e->getFile();
+            $msgArr[] = '<b><i>Line:</i></b> ' . $e->getLine() . '</p>';
+            $eStr .= join('<br/>', $msgArr) . "<br/>";
+        }
+        //print $eStr;
+        $this->exceptions=array();
+        /* temporary error logging end */
+
+
+        return count($this->exceptions);
+    }
+
+    public function login(&$class)
+    {
+        if (count($this->loginStack) > 0)
+        {
+            $className = get_class($class);
+            $prevClass = end($this->loginStack);
+            $prevClassName = get_class($prevClass);
+            if ($class instanceof $prevClassName && !($prevClass instanceof $className))
+            {
+                array_pop($this->loginStack);
+                $this->loginStack[] = $class;
+            } else if (!(!($class instanceof $prevClassName) && $prevClass instanceof $className))
+            {
+                $this->loginStack[] = $class;
+                $this->showLogs();
+            }
+        } else
+        {
+            $this->loginStack[] = $class;
+            $this->showLogs();
+        }
+        return true;
+    }
+
+    public function logout(&$class)
+    {
+        /*
+          $name = get_class($class);
+          $name = explode('\\', $name);
+          $name = end($name);
+         */
+        //$key = array_search($class, $this->loginStack);
+
+        $last = end($this->loginStack);
+        $last = get_class($last);
+
+        if ($class instanceof $last)
+        {
+            $this->showLogs('stop');
+            array_pop($this->loginStack);
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+
+    public function addMySQLError($error, $query)
+    {
+        $this->mySqlErrors[] = array(
+            'error' => $error,
+            'query' => $query
+        );
+    }
+
+    public function __destruct()
+    {
+        $this->logout($this);
+
+
+        if (count($this->exceptions) > 0)
+        {
+            $this->getExceptionMessages(json_encode(array('status' => 'error', 'response' => 'Nobody provided the response... So me had to do it.. Regards, Logger.')));
+        }
+    }
+
+    public function getStack()
+    {
+        $names = array();
+        foreach ($this->loginStack as $l)
+        {
+            $name = '';
+            preg_match('/[^\\\]+$/', get_class($l), $name);
+            $names[] = $name[0];
+        }
+        return "[" . join('][', $names) . ']';
+    }
+
+    private function getMicroTime()
+    {
+        return date("H:i:s") . substr((string) microtime(), 1, 8);
+    }
+
+    private function showLogs($login='start')
+    {
+        if ($this->showLogins)
+        {
+            $last = end($this->loginStack);
+            $last = get_class($last);
+            print $this->getMicroTime() ." ".$login. "[" . $last . "]: " . $this->getStack();
+        }
+    }
+
+}
+

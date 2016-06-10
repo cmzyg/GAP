@@ -1,0 +1,147 @@
+<?php
+
+namespace model\gmapi;
+
+/**
+ * GmapiWalletAuthorisation
+ *
+ * @Table(name="gap_wallet_authorisation")
+ * @Entity(repositoryClass="model\gmapi\GmapiRepository")
+ */
+class GmapiWalletAuthorisation
+{
+    /**
+     * @var integer
+     *
+     * @Column(name="id", type="integer", nullable=false)
+     * @Id
+     * @GeneratedValue(strategy="IDENTITY")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @Column(name="login", type="string", length=45, nullable=true)
+     */
+    private $login;
+
+    /**
+     * @var string
+     *
+     * @Column(name="password", type="string", length=45, nullable=true)
+     */
+    private $password;
+
+    /**
+     * @var string
+     *
+     * @Column(name="certificate", type="string", length=255, nullable=true)
+     */
+    private $certificate;
+
+    /**
+     * @var integer
+     *
+     * @Column(name="version", type="integer", nullable=true)
+     */
+    private $version = '1';
+
+
+    /**
+     * Get id
+     *
+     * @return integer 
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * Set login
+     *
+     * @param string $login
+     * @return GmapiWalletAuthorisation
+     */
+    public function setLogin($login)
+    {
+        $this->login = $login;
+
+        return $this;
+    }
+
+    /**
+     * Get login
+     *
+     * @return string 
+     */
+    public function getLogin()
+    {
+        return $this->login;
+    }
+
+    /**
+     * Set password
+     *
+     * @param string $password
+     * @return GmapiWalletAuthorisation
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+
+        return $this;
+    }
+
+    /**
+     * Get password
+     *
+     * @return string 
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * Set certificate
+     *
+     * @param string $certificate
+     * @return GmapiWalletAuthorisation
+     */
+    public function setCertificate($certificate)
+    {
+        $this->certificate = $certificate;
+
+        return $this;
+    }
+
+    /**
+     * Get certificate
+     *
+     * @return string 
+     */
+    public function getCertificate()
+    {
+        return $this->certificate;
+    }
+
+    /**
+     * @param int $version
+     */
+    public function setVersion($version)
+    {
+        $this->version = $version;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVersion()
+    {
+        return $this->version;
+    }
+
+
+}

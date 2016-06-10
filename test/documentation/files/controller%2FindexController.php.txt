@@ -1,0 +1,43 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 15/07/14.
+ * Time: 14:30
+ */
+
+namespace controller;
+
+
+use application\BaseController;
+use component\validation\Validation;
+use component\request\Request;
+
+class indexController extends BaseController{
+
+    public function index(){
+
+       	$validation = new Validation();
+        $validation = $validation->loadComponent();
+
+        $request = new Request();
+        $request = $request->loadComponent();
+
+        $request->setMethodName('pbet');
+        $request->setLicenseeId(58);
+        $request->setConfigurationId(12);
+        $request->setGameId(2090);
+        $request->setRegulationId(6);
+        $request->setSkinId(1510);
+        $request->setHashInformation("wqrewqe213214234f");
+        $request->setOperatorName("operator");
+        $request->setPlayerId(152);
+        $request->setPp("test,test,test,test,test,test");
+        $request->setAllRequest($_REQUEST);
+
+        $validation->validateRequest($request);
+
+        $this->registry->template->loadView("myview");
+    }
+
+} 

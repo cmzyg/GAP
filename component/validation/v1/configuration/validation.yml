@@ -1,0 +1,37 @@
+validation:
+    lid: numeric
+    cid: numeric
+    rid: numeric
+    gid: numeric
+    sid: numeric
+    hinfo: hash
+    method_name:
+    lp: 
+    pp: pp
+    operator: 
+    free_spin: freespin
+    uid: 
+    sesid: 
+    loginc: loginc
+    passc: 
+    wager: numeric
+    win: numeric
+    bet_tx:
+    win_tx:
+    round_id:
+    progid: numeric
+    prog_bet: 
+    prog_id1: 
+    prog_id2: 
+    jpw: 
+    cv: numeric
+    desc: boolean
+    fround_id: numeric
+    lines: numeric
+    line_bet: numeric
+    fround_provider: fprovider
+    status: numeric
+    ai:
+    gmai:
+    token: # not required
+    percentage: numeric

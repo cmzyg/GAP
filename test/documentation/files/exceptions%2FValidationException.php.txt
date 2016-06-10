@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * Created by PhpStorm.
+ * User: samuel
+ * Date: 24/07/14
+ * Time: 12:26
+ */
+
+namespace exceptions;
+
+use exceptions\Exception as Exception;
+
+class ValidationException extends Exception {
+
+    /**
+     * @param string $message
+     * @param int $code
+     * @param null $summaryLevel
+     * @param \Exception $previous
+     */
+    public function __construct($message, $code = 0, $summaryLevel = null, \Exception $previous = null)
+    {
+        $this->type = "VALIDATION";
+
+        // make sure everything is assigned properly
+        parent::__construct($message, $code, $summaryLevel, $previous);
+    }
+
+    protected $subtypes = array(
+        0 => "No Subtype Specified",
+        1 => "Game Server",
+        2 => "MS/MSsp",
+        3 => "Configuration",
+        4 => "Launcher",
+        5 => "Backoffice Configuration",
+        6 => "GMAPI system error",
+    );
+    protected $customSummary = array(
+        1 => array("Hash Problem", "Regulation Number Problem", "Unknown Method", "Parameters Problem", "Incorrect list/format of parameters"),
+        2 => array(
+            0 => "Hash Problem",
+            1 => "Regulation Number Problem",
+            2 => "Game is Inactive",
+            3 => "Unknown operator or currency",
+            4 => "Not Unique Session",
+            5 => "Read CV error",
+            6 => "Read Transaction Problem",
+            7 => "Player is blocked",
+            8 => "Check Fast Speed",
+            9 => "Parameters problem",
+            10 => "Unknown currency for player",
+        ),
+        3 => "Incomplete configuration for licensee",
+        4 => array(
+            0 => "Game is Inactive",
+            1 => "Parameters Problem",
+            2 => "Operator/Currency",
+            3 => "Not Unique Session",
+            4 => "Player ID is empty"
+        ),
+        5 => array(
+            0 => "Game is Inactive",
+            1 => "Operator/Currency",
+            2 => "Read CV error",
+            3 => "gmBO modules conf error",
+            4 => "Player is blocked",
+            5 => "Check Fast Speed",
+            6 => "Parameters problem",
+            7 => "Not allowed to use an operator for this licensee"
+        ),
+        6 => "Module body is empty"
+    );
+
+}
+
